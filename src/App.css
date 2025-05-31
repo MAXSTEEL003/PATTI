@@ -5,13 +5,38 @@
   padding: 0;
 }
 
+/* Fix the background color for the entire viewport */
+html {
+  background-color: #1e88e5; /* Blue background */
+}
+
 body {
   font-family: 'Poppins', 'Roboto', sans-serif;
-  background: #1e88e5; /* Blue background */
+  background-color: #1e88e5; /* Blue background */
   color: #333;
   min-height: 100vh;
   padding: 20px;
+  margin: 0;
+  overflow-x: hidden;
 }
+
+/* Add this to public/index.html in the head section */
+@media (max-width: 768px) {
+  body {
+    padding: 10px;
+    background-color: #1e88e5 !important; /* Force blue background */
+  }
+  
+  /* Target the root element */
+  #root {
+    background-color: #1e88e5;
+  }
+}
+
+/* Add meta theme-color for mobile browsers */
+/* Add this to index.html:
+<meta name="theme-color" content="#1e88e5" />
+*/
 
 /* Main Container */
 .bill-generator-container {
@@ -460,6 +485,14 @@ body {
 .nav-button:hover {
   background-color: #1565c0;
 }
+
+
+
+
+
+
+
+
 
 
 
