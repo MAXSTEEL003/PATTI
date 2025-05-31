@@ -7,7 +7,7 @@
 
 body {
   font-family: 'Poppins', 'Roboto', sans-serif;
-  background: #1e88e5; /* Changed to blue background */
+  background: #1e88e5; /* Blue background */
   color: #333;
   min-height: 100vh;
   padding: 20px;
@@ -252,6 +252,14 @@ body {
     background: #1e88e5; /* Ensure blue background on mobile */
   }
   
+  /* Fix any potential overflow issues */
+  html, body {
+    overflow-x: hidden;
+    width: 100%;
+    height: 100%;
+    background-color: #1e88e5; /* Ensure blue background */
+  }
+  
   .bill-generator-container {
     padding: 20px;
     border-radius: 15px;
@@ -452,6 +460,13 @@ body {
 .nav-button:hover {
   background-color: #1565c0;
 }
+
+
+
+
+
+
+
 
 
 
