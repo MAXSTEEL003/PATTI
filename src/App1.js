@@ -1,14 +1,10 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { PDFDownloadLink } from '@react-pdf/renderer';
 import './App.css';
 import BillPDF from './BillPDF';
-import { Link } from 'react-router-dom';
+import Select from 'react-select';
 
 export default function App() {
-  // Load merchants and millers from localStorage
-  const merchants = JSON.parse(localStorage.getItem('merchants') || '[]');
-  const millers = JSON.parse(localStorage.getItem('millers') || '[]');
-  
   const [formData, setFormData] = useState({
     date: '',
     millerName: '',
@@ -28,18 +24,8 @@ export default function App() {
     discountAmt: 0,
     total: 0,
     statusText: 'Excess ₹0.00',
-    statusClassName: 'status-excess',
+    statusClassName: 'status-excess', // Use className for HTML styling
   });
-  
-  // For search and dropdown functionality
-  const [millerSearch, setMillerSearch] = useState('');
-  const [merchantSearch, setMerchantSearch] = useState('');
-  const [showMillerDropdown, setShowMillerDropdown] = useState(false);
-  const [showMerchantDropdown, setShowMerchantDropdown] = useState(false);
-  
-  // Refs for dropdown containers
-  const millerDropdownRef = useRef(null);
-  const merchantDropdownRef = useRef(null);
 
   useEffect(() => {
     const rate = parseFloat(formData.rate) || 0;
@@ -57,67 +43,10 @@ export default function App() {
 
     setPreviewData({ gross, discountAmt, total, statusText, statusClassName });
   }, [formData]);
-  
-  // Handle clicks outside dropdowns
-  useEffect(() => {
-    function handleClickOutside(event) {
-      if (millerDropdownRef.current && !millerDropdownRef.current.contains(event.target)) {
-        setShowMillerDropdown(false);
-      }
-      if (merchantDropdownRef.current && !merchantDropdownRef.current.contains(event.target)) {
-        setShowMerchantDropdown(false);
-      }
-    }
-    
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, []);
 
   const handleChange = e => {
     const { name, value } = e.target;
     setFormData(f => ({ ...f, [name]: value }));
-  };
-  
-  // Filter millers based on search
-  const filteredMillers = millers.filter(miller => 
-    miller.toLowerCase().includes(millerSearch.toLowerCase())
-  );
-  
-  // Filter merchants based on search
-  const filteredMerchants = merchants.filter(merchant => 
-    merchant.toLowerCase().includes(merchantSearch.toLowerCase())
-  );
-  
-  // Select miller from dropdown
-  const selectMiller = (miller) => {
-    setFormData(f => ({ ...f, millerName: miller }));
-    setMillerSearch(miller); // Set the search field to the selected miller
-    setShowMillerDropdown(false);
-  };
-  
-  // Select merchant from dropdown
-  const selectMerchant = (merchant) => {
-    setFormData(f => ({ ...f, merchantName: merchant }));
-    setMerchantSearch(merchant); // Set the search field to the selected merchant
-    setShowMerchantDropdown(false);
-  };
-
-  // Handle miller search input change
-  const handleMillerSearchChange = (e) => {
-    const value = e.target.value;
-    setMillerSearch(value);
-    setFormData(f => ({ ...f, millerName: '' })); // Clear the selected miller when typing
-    setShowMillerDropdown(true);
-  };
-
-  // Handle merchant search input change
-  const handleMerchantSearchChange = (e) => {
-    const value = e.target.value;
-    setMerchantSearch(value);
-    setFormData(f => ({ ...f, merchantName: '' })); // Clear the selected merchant when typing
-    setShowMerchantDropdown(true);
   };
 
   const isFormIncomplete = !formData.date || !formData.millerName || !formData.merchantName || !formData.rate || !formData.quintals || !formData.chequeAmount;
@@ -126,10 +55,6 @@ export default function App() {
   return (
     <div className="bill-generator-container">
       <h2 className="bill-generator-heading">✨ Tejas Canvassing ✨</h2>
-      
-      <div className="manager-nav">
-        <Link to="/manage" className="nav-button">Manage Merchants & Millers</Link>
-      </div>
       
       <div className="form-grid">
         <label className="form-label">
@@ -144,55 +69,23 @@ export default function App() {
         </label>
         <label className="form-label">
           <span className="label-span">🏭 Miller Name</span>
-          <div className="search-container" ref={millerDropdownRef}>
-            <input
-              name="millerSearch"
-              value={millerSearch}
-              onChange={handleMillerSearchChange}
-              onFocus={() => setShowMillerDropdown(true)}
-              className="form-input"
-              placeholder="Search miller name"
-            />
-            {showMillerDropdown && filteredMillers.length > 0 && (
-              <div className="dropdown-menu">
-                {filteredMillers.map((miller, index) => (
-                  <div 
-                    key={index} 
-                    className="dropdown-item"
-                    onClick={() => selectMiller(miller)}
-                  >
-                    {miller}
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
+          <input
+            name="millerName"
+            value={formData.millerName}
+            onChange={handleChange}
+            className="form-input"
+            placeholder="Enter miller name"
+          />
         </label>
         <label className="form-label">
           <span className="label-span">🛒 Merchant Name</span>
-          <div className="search-container" ref={merchantDropdownRef}>
-            <input
-              name="merchantSearch"
-              value={merchantSearch}
-              onChange={handleMerchantSearchChange}
-              onFocus={() => setShowMerchantDropdown(true)}
-              className="form-input"
-              placeholder="Search merchant name"
-            />
-            {showMerchantDropdown && filteredMerchants.length > 0 && (
-              <div className="dropdown-menu">
-                {filteredMerchants.map((merchant, index) => (
-                  <div 
-                    key={index} 
-                    className="dropdown-item"
-                    onClick={() => selectMerchant(merchant)}
-                  >
-                    {merchant}
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
+          <input
+            name="merchantName"
+            value={formData.merchantName}
+            onChange={handleChange}
+            className="form-input"
+            placeholder="Enter merchant name"
+          />
         </label>
         <label className="form-label">
           <span className="label-span">💰 Rate (₹)</span>
@@ -347,6 +240,3 @@ export default function App() {
     </div>
   );
 }
-
-
-
