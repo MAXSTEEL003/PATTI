@@ -370,7 +370,13 @@ function wire(){
 
   // cheque inputs wiring
   q('#chq_amount')?.addEventListener('input', ()=>{ const el = q('#out_chq_amount'); if(el) el.textContent = 'CHQ AM: ' + formatNumber(parseInput(q('#chq_amount').value)); recalcAll(); });
-  q('#chq_no')?.addEventListener('input', ()=>{ const el = q('#out_chq_no'); if(el) el.textContent = 'CHQ NO: ' + q('#chq_no').value; try{ recalcAll(); }catch(e){} });
+  // CHQ NO is free-form string (may contain letters, leading zeros). Update preview cell I7 live.
+  q('#chq_no')?.addEventListener('input', ()=>{
+    const val = q('#chq_no').value || '';
+    const out = q('#out_chq_no'); if(out) out.textContent = 'CHQ NO: ' + val;
+    const previewI7 = q('#I7'); if(previewI7) previewI7.textContent = val;
+    try{ recalcAll(); }catch(e){}
+  });
   q('#chq_date')?.addEventListener('input', ()=>{ const el = q('#out_chq_date'); if(el) el.textContent = 'CHQ DT: ' + formatDate(q('#chq_date').value); try{ recalcAll(); }catch(e){} });
   q('#bank')?.addEventListener('input', ()=>{ const el = q('#out_bank'); if(el) el.textContent = 'BANK: ' + q('#bank').value; try{ recalcAll(); }catch(e){} });
 
@@ -507,15 +513,58 @@ function wire(){
         }
         
         const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = 'patti-note.png';
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-        
-        alert('📁 Image downloaded as fallback since clipboard copy is not available.');
+
+        // Detect Safari (desktop and iOS) to provide a better manual-copy UX.
+  const ua = navigator.userAgent || '';
+  const isSafari = /Safari/.test(ua) && !/Chrome|Chromium|Android/.test(ua);
+  const isiOS = /iP(ad|hone|od)/.test(ua);
+  const isChrome = /Chrome/.test(ua) && !/Edge|OPR|Brave|Chromium/.test(ua);
+
+  if(isSafari || isiOS){
+          // Open a simple page with the image and instructions so user can long-press (iOS)
+          // or right-click/save (desktop Safari) to copy/save the image.
+          const html = `<!doctype html><meta name="viewport" content="width=device-width,initial-scale=1">
+            <style>body{display:flex;flex-direction:column;align-items:center;justify-content:center;margin:0;padding:12px;font-family:system-ui,Segoe UI,Arial;background:#fff;color:#111}img{max-width:100%;height:auto;border:1px solid #ddd;box-shadow:0 4px 18px rgba(0,0,0,0.08)}.hint{margin-top:14px;padding:10px 14px;border-radius:8px;background:#f3f4f6;color:#111;max-width:680px;text-align:center}</style>
+            <img src="${url}" alt="Patti Note"><div class="hint">${isiOS? 'Long-press the image and choose "Copy" or "Save Image" to save/copy it to your device.' : 'Right-click the image and choose "Copy Image" or "Save Image As...". On macOS, you can also drag it into other apps.'}</div>`;
+          const w = window.open('', '_blank');
+          if(w){
+            w.document.write(html);
+            w.document.title = 'Patti Note — tap/long-press to copy or save';
+            w.document.close();
+          }else{
+            // popup blocked — fallback to download
+            const a = document.createElement('a'); a.href = url; a.download = 'patti-note.png'; document.body.appendChild(a); a.click(); document.body.removeChild(a);
+          }
+          alert('Opened image in a new tab/window. Use the browser menu (long-press or right-click) to copy/save the image.');
+          // Do not revoke immediately to allow the new window to load the blob
+          setTimeout(()=> URL.revokeObjectURL(url), 30000);
+        }else if(isChrome){
+          // Chrome: open the image in a new tab and provide quick-copy instructions
+          const html = `<!doctype html><meta name="viewport" content="width=device-width,initial-scale=1">
+            <style>body{display:flex;flex-direction:column;align-items:center;justify-content:center;margin:0;padding:12px;font-family:system-ui,Segoe UI,Arial;background:#fff;color:#111}img{max-width:100%;height:auto;border:1px solid #ddd;box-shadow:0 4px 18px rgba(0,0,0,0.08)}.hint{margin-top:14px;padding:10px 14px;border-radius:8px;background:#f3f4f6;color:#111;max-width:680px;text-align:center}</style>
+            <img src="${url}" alt="Patti Note"><div class="hint">Right-click the image and choose "Copy image" or press ${navigator.platform && navigator.platform.indexOf('Mac')>-1 ? '⌘+C' : 'Ctrl+C'} to copy it. You can then paste it into chat or documents.</div>`;
+          const w = window.open('', '_blank');
+          if(w){
+            w.document.write(html);
+            w.document.title = 'Patti Note — right-click or press copy';
+            w.document.close();
+          }else{
+            // popup blocked — fallback to download
+            const a = document.createElement('a'); a.href = url; a.download = 'patti-note.png'; document.body.appendChild(a); a.click(); document.body.removeChild(a);
+          }
+          alert('Opened image in a new tab/window. Right-click the image or press copy to place it on your clipboard.');
+          setTimeout(()=> URL.revokeObjectURL(url), 30000);
+        }else{
+          // Non-Safari: trigger a download as before
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = 'patti-note.png';
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+          alert('📁 Image downloaded as fallback since clipboard copy is not available.');
+        }
       }catch(e){
         console.error('Even fallback download failed:', e);
         alert('❌ Both clipboard and download failed. Please try refreshing the page.');
@@ -622,13 +671,18 @@ function wire(){
       parts.push(isSecure ? '🔒 secure' : '⚠️ insecure');
       parts.push(hasClip ? '📋 clipboard API' : '❌ no clipboard API');
       parts.push(hasClipboardItem ? '🖼️ ClipboardItem' : '❌ no ClipboardItem');
+      // indicate if Chrome has advanced clipboardWrite support
+      const isChrome = /Chrome/.test(navigator.userAgent || '') && !/Edge|OPR|Brave|Chromium/.test(navigator.userAgent || '');
+      if(isChrome && hasClipboard){
+        parts.push('⚙️ Chrome: may require permission prompt');
+      }
       parts.push(hasHtml2Canvas ? '🎨 html2canvas' : '⚠️ no html2canvas');
       if(perm !== 'unknown') parts.push(`📝 perm:${perm}`);
       
       const txt = parts.join(' | ');
       if(el) el.textContent = txt;
       
-      const isReady = hasClipboardItem && isSecure && hasClip;
+  const isReady = hasClipboardItem && isSecure && hasClip;
       if(dot) {
         dot.textContent = isReady ? '✅' : '❌';
         dot.style.color = isReady ? '#1b7a1b' : '#b22222';
