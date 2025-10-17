@@ -1,0 +1,10 @@
+{
+  "name": "patti-calculator-root",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "preinstall": "echo 'Ensure dependencies in src are installed when needed'",
+    "build": "cd src && npm run build",
+    "start": "cd src && npm run dev"
+  }
+}
