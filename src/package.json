@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "http-server -c-1 . -p 8000",
     "start": "npm run dev",
-    "build": "mkdir -p ../dist && cp -r ./* ../dist/ || true"
+    "build": "node ../scripts/build.js"
   },
   "devDependencies": {
     "http-server": "^14.1.1"
