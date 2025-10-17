@@ -1,0 +1,208 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Patti Calculator</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app">
+    <h1>Patti Note Calculator</h1>
+    <div class="controls">
+      <div class="left">
+        <div class="top-fields">
+          <label>QTY
+            <input id="rate_qty" type="text">
+          </label>
+          <label>RATE
+            <input id="rate_rate" type="text">
+          </label>
+        </div>
+        <div class="inputs-grid">
+          <label>MILLER NAME
+            <input id="miller_name">
+          </label>
+          <label>PARTY NAME
+            <input id="party_name">
+          </label>
+
+          <label>BILL NO
+            <input id="bill_no">
+          </label>
+          <label>ARRIVAL DT
+            <input id="arrival_dt" type="date">
+          </label>
+
+          <!-- per-row Qty and Rate are used in the items table -->
+
+          <label>LORRY HIRE 
+            <input id="lorry_small" type="text">
+          </label>
+          <!-- LORRY HIRE input removed per user request -->
+
+          <label>SELLER COM
+            <input id="seller_commission" type="text">
+          </label>
+
+          <label>DISCOUNT
+            <input id="discount" type="text">
+          </label>
+          <label>Q-DIFF
+            <input id="qdiff" type="text">
+          </label>
+
+          <label>REMARKS
+            <input id="remarks" placeholder="e.g. RTGS AM">
+          </label>
+          <label>CHQ AM
+            <input id="chq_amount" type="text">
+          </label>
+          <label>CHQ NO
+            <input id="chq_no" type="text">
+          </label>
+          <label>CHQ DT
+            <input id="chq_date" type="date">
+          </label>
+          <label>BANK
+            <input id="bank" type="text">
+          </label>
+        </div>
+      </div>
+      <div class="right">
+        <div class="right-fields">
+          <!-- SHORTAGE input removed per user request -->
+        </div>
+
+        <!-- PREVIEW: moved above export controls so user sees the preview first -->
+        <div class="preview" id="note">
+          <table class="sheet" role="grid">
+            <colgroup>
+                <col style="width:11.1111%">
+                <col style="width:11.1111%">
+                <col style="width:11.1111%">
+                <col style="width:11.1111%">
+                <col style="width:11.1111%">
+                <col style="width:11.1111%">
+                <col style="width:11.1111%">
+                <col style="width:11.1111%">
+                <col style="width:11.1111%">
+              </colgroup>
+            <tbody>
+              <!-- Row 1 -->
+              <tr>
+                <td id="A1">MILLER NAME</td>
+                  <td id="B1" colspan="8" class="merged"><span id="B1_value"></span></td>
+              </tr>
+              <!-- Row 2 -->
+              <tr>
+                <td id="A2">PARTY NAME</td>
+                <td id="B2" colspan="8" class="merged">&nbsp;</td>
+              </tr>
+              <!-- Row 3 -->
+              <tr>
+                <td id="A3">BILL NO</td>
+                <td id="B3">&nbsp;</td>
+                <td id="C3">&nbsp;</td>
+                <td id="D3">&nbsp;</td>
+                <td id="E3">&nbsp;</td>
+                <td id="F3">&nbsp;</td>
+                <td id="G3">&nbsp;</td>
+                <td id="H3">&nbsp;</td>
+                <td id="I3">&nbsp;</td>
+              </tr>
+              <!-- Row 4 -->
+              <tr>
+                <td id="A4">ARRIVAL DT</td>
+                <td id="B4">&nbsp;</td>
+                <td id="C4">&nbsp;</td>
+                <td id="D4">&nbsp;</td>
+                <td id="E4" colspan="3" class="merged">&nbsp;</td>
+                <td id="H4">&nbsp;</td>
+                <td id="I4">&nbsp;</td>
+              </tr>
+              <!-- Row 5 (RATE) -->
+              <tr>
+                <td id="A5">RATE</td>
+                <td id="B5">&nbsp;</td>
+                <td id="C5">&nbsp;</td>
+                <td id="D5">&nbsp;</td>
+                <td id="E5" colspan="3" class="merged">&nbsp;</td>
+                <td id="H5">&nbsp;</td>
+                <td id="I5">&nbsp;</td>
+              </tr>
+              <!-- Row 6 (LORRY HIRE) -->
+              <tr>
+                <td id="A6">LORRY HIRE</td>
+                <td id="B6">&nbsp;</td>
+                <td id="C6">&nbsp;</td>
+                <td id="D6">&nbsp;</td>
+                <!-- E6 spans E/F/G; include a dedicated span for E6_value and a separate span for G6 so scripts can target G6 without being overwritten -->
+                <td id="E6" colspan="3" class="merged"><span id="E6_value"></span><span id="G6">&nbsp;</span></td>
+                <td id="H6">CHQ AM</td>
+                <td id="I6">&nbsp;</td>
+              </tr>
+              <!-- Row 7 (DISCOUNT) -->
+              <tr>
+                <td id="A7">DISCOUNT</td>
+                <td id="B7">&nbsp;</td>
+                <td id="C7">&nbsp;</td>
+                <td id="D7">&nbsp;</td>
+                <td id="E7" colspan="3" class="merged">&nbsp;</td>
+                <td id="H7">CHQ NO</td>
+                <td id="I7">&nbsp;</td>
+              </tr>
+              <!-- Row 8 (SELLER COM) -->
+              <tr>
+                <td id="A8">SELLER COM</td>
+                <td id="B8">&nbsp;</td>
+                <td id="C8">&nbsp;</td>
+                <td id="D8">&nbsp;</td>
+                <td id="E8" colspan="3" class="merged">&nbsp;</td>
+                <td id="H8">CHQ DT</td>
+                <td id="I8">&nbsp;</td>
+              </tr>
+              <!-- Row 9 (SHORTAGE) -->
+              <tr>
+                <td id="A9">SHORTAGE</td>
+                <td id="B9">&nbsp;</td>
+                <td id="C9">&nbsp;</td>
+                <td id="D9">&nbsp;</td>
+                <td id="E9" colspan="3" class="merged">&nbsp;</td>
+                <td id="H9">BANK</td>
+                <td id="I9">&nbsp;</td>
+              </tr>
+              <!-- Row 10 (Q-DIFF) - merge D10 with row below -->
+              <tr>
+                <td id="A10">Q-DIFF</td>
+                <td id="B10">&nbsp;</td>
+                <td id="C10">&nbsp;</td>
+                <td id="D10" rowspan="2" colspan="6" class="merged"><span id="D10_value">&nbsp;</span></td>
+              </tr>
+              <!-- Row 11 (TOTAL) - D11 merged into D10 above -->
+              <tr>
+                <td id="A11">TOTAL</td>
+                <td id="B11">&nbsp;</td>
+                <td id="C11">&nbsp;</td>
+                <!-- D11 removed because D10 spans into this row -->
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="right-controls">
+          <button id="exportBtn">Export PNG</button>
+          <button id="copyBtn">Copy Image</button>
+          <button id="resetBtn">Reset</button>
+        </div>
+      </div>
+    </div>
+
+    <p class="help">Open this file in your browser. Fill fields on the left; preview on right updates live. Export or copy the preview as an image.</p>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="app.js"></script>
+  <script src="https://cdn.sheetjs.com/xlsx-latest/package/dist/xlsx.full.min.js"></script>
+</body>
+</html>
